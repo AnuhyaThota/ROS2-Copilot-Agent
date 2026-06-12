@@ -1,0 +1,3 @@
+[submodule "src/ros2_mcp"]
+	path = src/ros2_mcp
+	url = https://github.com/LCAS/ros2_mcp.git
