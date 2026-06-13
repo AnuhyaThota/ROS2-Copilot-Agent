@@ -25,11 +25,11 @@ def generate_launch_description():
         'bt_navigator',
         'waypoint_follower',
     ]
-    nav_params = os.path.join(get_package_share_directory('nav2_mobile_robot'), 'nav.yaml')
+    nav_params = os.path.join(get_package_share_directory('nav2_mobile_robot'), 'conf', 'nav.yaml')
 
     load_nodes = GroupAction(
         actions=[
-            SetParameter('use_sim_time', False),
+            SetParameter('use_sim_time', True),
             Node(
                 package='nav2_controller',
                 executable='controller_server',
@@ -111,7 +111,7 @@ def generate_launch_description():
                 name='lifecycle_manager_navigation',
                 arguments=['--ros-args', '--log-level', 'info'],
                 output='screen',
-                parameters=[{'autostart': True}, {'node_names': lifecycle_nodes}],
+                parameters=[{'use_sim_time': True}, {'autostart': True}, {'node_names': lifecycle_nodes}],
             ),
         ],
     )

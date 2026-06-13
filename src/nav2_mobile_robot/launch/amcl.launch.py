@@ -8,8 +8,8 @@ import os
 
 def generate_launch_description():
     
-    amcl_yaml = os.path.join(get_package_share_directory('nav2_mobile_robot'), 'amcl.yaml')
-    map_file = os.path.join(get_package_share_directory('nav2_mobile_robot'), 'maze.yaml')
+    amcl_yaml = os.path.join(get_package_share_directory('nav2_mobile_robot'), 'conf', 'amcl.yaml')
+    map_file = os.path.join(get_package_share_directory('nav2_mobile_robot'), 'map', 'maze.yaml')
 
     
     return LaunchDescription([

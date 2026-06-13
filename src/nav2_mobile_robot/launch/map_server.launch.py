@@ -6,7 +6,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     
-    map_file = os.path.join(get_package_share_directory('nav2_mobile_robot'), 'maze.yaml')
+     map_file = os.path.join(get_package_share_directory('nav2_mobile_robot'), 'map', 'maze.yaml')
     
     
     

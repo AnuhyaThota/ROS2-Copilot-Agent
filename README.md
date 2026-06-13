@@ -15,11 +15,21 @@ This workspace contains ROS2 packages for:
 ## Prerequisites
 
 - ROS2 Humble environment (already provided by this devcontainer)
-- Built workspace:
+
+### 1) Create the Gemini API key file
+
+`setup.py` packages `.env` as a data file, so it **must exist before building**. Create it now:
 
 ```bash
-cd /workspaces/my-cmp3103-ws
-rosdep install -i --from-paths src/ --rosdistro humble -y
+echo "GEMINI_API_KEY=your_actual_key_here" > src/gem_agent_ros2/.env
+```
+
+Replace `your_actual_key_here` with your real key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+
+### 2) Build the workspace
+
+```bash
+cd /workspaces/ROS2-Copilot-Agent
 colcon build
 source install/setup.bash
 ```
@@ -28,8 +38,16 @@ source install/setup.bash
 
 In terminal 1:
 
+Install the following Python packages manually, as the automatic installation is currently failing.
+
 ```bash
-cd /workspaces/my-cmp3103-ws
+/usr/bin/python3 -m pip install google-genai
+/usr/bin/python3 -m pip install python-dotenv
+/usr/bin/python3 -m pip install fastmcp
+```
+
+```bash
+cd /workspaces/ROS2-Copilot-Agent
 source install/setup.bash
 ros2 launch nav2_mobile_robot nav2_mobile_robot_gazebo.launch.py
 ```
@@ -41,7 +59,7 @@ This starts Gazebo with `maze.sdf`, robot spawn, and ROS-Gazebo bridges (`/cmd_v
 In terminal 2:
 
 ```bash
-cd /workspaces/my-cmp3103-ws
+cd /workspaces/ROS2-Copilot-Agent
 source install/setup.bash
 ros2 topic list | egrep "cmd_vel|odom|lidar|tf"
 ```
@@ -68,26 +86,13 @@ ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0, y: 0.0
 
 In separate terminals after simulation is up:
 
-Localization + map server:
-
-```bash
-cd /workspaces/my-cmp3103-ws
-source install/setup.bash
-ros2 launch nav2_mobile_robot amcl.launch.py
-```
 
 Nav2:
 
 ```bash
-cd /workspaces/my-cmp3103-ws
+cd /workspaces/ROS2-Copilot-Agent
 source install/setup.bash
 ros2 launch nav2_mobile_robot navigation.launch.py
-```
-
-Alternative (mapping instead of AMCL):
-
-```bash
-ros2 launch nav2_mobile_robot slam.launch.py
 ```
 
 ## Natural-Language Robot Control (Gemini)
@@ -97,44 +102,29 @@ ros2 launch nav2_mobile_robot slam.launch.py
 - request topic: `/input_request` (`std_msgs/String`)
 - response topic: `/response` (`std_msgs/String`)
 
-### 1) Configure API key
-
-Set your key in:
-
-- `src/gem_agent_ros2/.env`
-
-Example:
-
-```env
-GEMINI_API_KEY=your_actual_key_here
-```
-
-The node loads this `.env` automatically at startup.
-
-### 2) Run the Gemini ROS2 node
+### 1) Run the Gemini ROS2 node
 
 In terminal 4:
 
 ```bash
-cd /workspaces/my-cmp3103-ws
+cd /workspaces/ROS2-Copilot-Agent
 source install/setup.bash
 ros2 run gem_agent_ros2 lmr
 ```
 
-### 3) Send natural-language commands
+### 2) Send natural-language commands
 
-Watch responses:
+Watch responses in a new terminal:
 
 ```bash
 ros2 topic echo /response
 ```
 
-Publish requests:
+Publish requests in a new terminal:
 
 ```bash
 ros2 topic pub --once /input_request std_msgs/msg/String "{data: 'move forward 1 meter'}"
-ros2 topic pub --once /input_request std_msgs/msg/String "{data: 'move left 0.5 meter'}"
-ros2 topic pub --once /input_request std_msgs/msg/String "{data: 'where are you now?'}"
+ros2 topic pub --once /input_request std_msgs/msg/String "{data: 'give me the location of the robot?'}"
 ```
 
 ## ROS2 MCP Server
@@ -146,7 +136,7 @@ For MCP server usage and SSE endpoint details, see:
 Quick run command:
 
 ```bash
-cd /workspaces/my-cmp3103-ws
+cd /workspaces/ROS2-Copilot-Agent
 source install/setup.bash
 ros2 run ros2_mcp ros2_mcp_server
 ```
@@ -156,6 +146,8 @@ Typical endpoint when running:
 - `http://localhost:8000/sse`
 
 ## Troubleshooting
+
+- **`error: can't copy '.env': doesn't exist or not a regular file`** — The `.env` file must be created before `colcon build` because `setup.py` includes it as a data file. See [Prerequisites](#prerequisites) step 1.
 
 - If no movement from natural-language commands, verify action server:
 
